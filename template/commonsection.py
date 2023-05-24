@@ -3,7 +3,7 @@ import openpyxl
 from docx import Document
 
 
-def fetch_data_and_write_to_doc(sheet_name, headings, column_names, output_doc):
+def fetch_data_and_write_to_doc(sheet_name, headings, column_names, output_doc,contents):
     # Load the Excel file
     workbook = openpyxl.load_workbook('../Utils/excel.xlsx')
 
@@ -37,9 +37,9 @@ def fetch_data_and_write_to_doc(sheet_name, headings, column_names, output_doc):
             column_value = sheet.cell(row=row_index, column=column_index).value
             doc.add_heading(f"{heading}", level=1)
             # Fetch data from OpenAI
-            openai.api_key = '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'
+            openai.api_key = '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'
             prompt = "User Requirement - The functional specification document will specify the details for generating a customer invoice form for Canada. The form type identified is Adobe Forms in BTP, triggered by the business document. This document will outline the necessary information and requirements to create a custom invoice form tailored to the specific needs of Canadian customers."
-            spec = "Choose the content which is applicable for user requirement from below and create the assumptions of a functional specification document in not more than 60 words:"
+            spec = f"Choose the content which is applicable for user requirement from below and create the {contents} of a functional specification document in not more than 60 words:"
             response = openai.Completion.create(
                 engine='text-davinci-003',
                 prompt=prompt + spec + f"{column_value}",
@@ -48,14 +48,12 @@ def fetch_data_and_write_to_doc(sheet_name, headings, column_names, output_doc):
             data = response.choices[0].text.strip()
             doc.add_paragraph(data)
 
-            print(data)
-
     # Save the document
     doc.save(output_doc)
     print(f"Data written to '{output_doc}' successfully.")
 
 
 # Example usage
-headings = ["Introduction", "Assumptions"]
-column_names = ["fs-general_fields-requirements", "fs-general_fields-assumptions"]
-fetch_data_and_write_to_doc("Sheet1", headings, column_names, "new_output.docx")
+headings = ["Assumptions"]
+column_names = ["fs-general_fields-assumptions"]
+fetch_data_and_write_to_doc("Sheet1", headings, column_names, "new_output.docx","assumptions")
